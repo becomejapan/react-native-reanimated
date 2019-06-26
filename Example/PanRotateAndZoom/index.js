@@ -15,11 +15,9 @@ export default class Example extends Component {
     super(props);
     this.X = new Value(0);
     this.Y = new Value(0);
-    this.R = new Value(0);
     this.Z = new Value(1);
     const offsetX = new Value(0);
     const offsetY = new Value(0);
-    const offsetR = new Value(0);
     const offsetZ = new Value(1);
 
     this.handlePan = event([
@@ -36,16 +34,6 @@ export default class Example extends Component {
       },
     ]);
 
-    this.handleRotate = event([
-      {
-        nativeEvent: ({ rotation: r, state }) =>
-          block([
-            set(this.R, add(r, offsetR)),
-            cond(eq(state, State.END), [set(offsetR, add(offsetR, r))]),
-          ]),
-      },
-    ]);
-
     this.handleZoom = event([
       {
         nativeEvent: ({ scale: z, state }) =>
@@ -57,7 +45,6 @@ export default class Example extends Component {
     ]);
   }
 
-  rotationRef = React.createRef();
   panRef = React.createRef();
   pinchRef = React.createRef();
 
@@ -66,37 +53,31 @@ export default class Example extends Component {
       <View style={styles.container}>
         <PanGestureHandler
           ref={this.panRef}
-          simultaneousHandlers={[this.rotationRef, this.pinchRef]}
+          simultaneousHandlers={[this.pinchRef]}
           onGestureEvent={this.handlePan}
           onHandlerStateChange={this.handlePan}>
           <Animated.View>
             <PinchGestureHandler
               ref={this.pinchRef}
-              simultaneousHandlers={[this.rotationRef, this.panRef]}
+              simultaneousHandlers={[this.panRef]}
               onGestureEvent={this.handleZoom}
               onHandlerStateChange={this.handleZoom}>
               <Animated.View>
-                <RotationGestureHandler
-                  ref={this.rotationRef}
-                  simultaneousHandlers={[this.pinchRef, this.panRef]}
-                  onGestureEvent={this.handleRotate}
-                  onHandlerStateChange={this.handleRotate}>
                   <Animated.Image
-                    resizeMode="contain"
+                    resizeMode="stretch"
                     style={[
                       styles.box,
                       {
                         transform: [
                           { translateX: this.X },
                           { translateY: this.Y },
-                          { rotate: concat(this.R, 'rad') },
                           { scale: this.Z },
+                          
                         ],
                       },
                     ]}
                     source={require('./react-hexagon.png')}
                   />
-                </RotationGestureHandler>
               </Animated.View>
             </PinchGestureHandler>
           </Animated.View>
@@ -119,4 +100,9 @@ const styles = StyleSheet.create({
     width: IMAGE_SIZE,
     height: IMAGE_SIZE,
   },
+  rectangle: {
+    width: 100,
+    height:100,
+    backgroundColor: '#FFC107',
+  }
 });
